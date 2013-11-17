@@ -40,6 +40,9 @@ boolean Adafruit_AM2315::readData(void) {
   Wire.write(0x00);  // start at address 0x0
   Wire.write(4);  // request 4 bytes data
   Wire.endTransmission();
+
+  // wait before reading values (per the datasheet)
+  delay(200);
   
   Wire.requestFrom(AM2315_I2CADDR, 8);
   for (uint8_t i=0; i<8; i++) {
