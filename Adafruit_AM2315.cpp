@@ -30,15 +30,11 @@ boolean Adafruit_AM2315::begin(void) {
 
 boolean Adafruit_AM2315::readData(void) {
   uint8_t reply[10];
-  
+ 
+  // wakeup the device (per the datasheet) 
   Wire.beginTransmission(AM2315_I2CADDR);
-  Wire.write(AM2315_READREG);
-  Wire.write(0x00);  // start at address 0x0
-  Wire.write(4);  // request 4 bytes data
   Wire.endTransmission();
 
-  // for reasons unknown we have to send the data twice :/
-  // whats the bug here?
   Wire.beginTransmission(AM2315_I2CADDR);
   Wire.write(AM2315_READREG);
   Wire.write(0x00);  // start at address 0x0
