@@ -56,10 +56,24 @@ boolean Adafruit_AM2315::readData(void) {
   humidity /= 10;
   //Serial.print("H"); Serial.println(humidity);
 
-  temp = reply[4];
+  // test negative temp (-10.1C)
+  //reply[4] = 0x80;
+  //reply[5] = 0x65;
+  // test negative temp (-100.1C)
+  //reply[4] = 0x83;
+  //reply[5] = 0xE9;
+  // test positive temp (100.1C)
+  //reply[4] = 0x03;
+  //reply[5] = 0xE9;
+
+  temp = reply[4] & 0x7F; // high bit is sign
   temp *= 256;
   temp += reply[5];
   temp /= 10;
+
+  // change sign
+  if (reply[4] >> 7) temp = -temp;
+
   //Serial.print("T"); Serial.println(temp);
 
   return true;
