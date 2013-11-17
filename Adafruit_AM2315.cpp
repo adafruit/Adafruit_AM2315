@@ -76,4 +76,11 @@ float Adafruit_AM2315::readHumidity(void) {
   return humidity;
 }
 
+boolean Adafruit_AM2315::readSensor(AM2315_Sensor_Reading *sr) {
+  if (! readData()) return false;
+  (*sr).temp = temp;
+  (*sr).humidity = humidity;
+  return true;
+}
+
 /*********************************************************************/
