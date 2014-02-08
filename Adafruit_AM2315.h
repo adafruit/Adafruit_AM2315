@@ -30,6 +30,7 @@ class Adafruit_AM2315 {
   boolean begin(void);
   float readTemperature(void);
   float readHumidity(void);
+  bool readTemperatureAndHumidity(float&, float&);
   
  private:
   boolean readData(void);

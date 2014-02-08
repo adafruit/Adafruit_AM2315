@@ -80,4 +80,21 @@ float Adafruit_AM2315::readHumidity(void) {
   return humidity;
 }
 
+/*
+ * This method returns both temperature and humidity in a single call and using a single I2C request. 
+ *
+ * If you want to obtain both temperature and humidity when you sample the sensor, be aware that calling 
+ * readTemperature() and readHumidity() in rapid succession may swamp the sensor and result in invalid 
+ * readingings (the AM2315 manual advisess that continuous samples must be at least 2 seconds apart).
+ * Calling this method avoids the double I2C request.
+ */
+bool Adafruit_AM2315::readTemperatureAndHumidity(float &t, float &h) {
+    if (!readData()) return false;
+    
+    t = temp;
+    h = humidity;
+    
+    return true;
+}
+
 /*********************************************************************/
