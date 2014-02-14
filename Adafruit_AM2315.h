@@ -24,18 +24,12 @@
 #define AM2315_I2CADDR       0x5C
 #define AM2315_READREG       0x03
 
-struct AM2315_Sensor_Reading {
-  float temp;
-  float humidity;
-};
-
 class Adafruit_AM2315 {
  public:
   Adafruit_AM2315();
   boolean begin(void);
   float readTemperature(void);
   float readHumidity(void);
-  boolean readSensor(AM2315_Sensor_Reading*);
   
  private:
   boolean readData(void);

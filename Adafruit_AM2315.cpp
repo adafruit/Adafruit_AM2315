@@ -30,20 +30,21 @@ boolean Adafruit_AM2315::begin(void) {
 
 boolean Adafruit_AM2315::readData(void) {
   uint8_t reply[10];
- 
-  // wakeup the device (per the datasheet) 
+  
+  // Wake up the sensor
   Wire.beginTransmission(AM2315_I2CADDR);
+  delay(2);
   Wire.endTransmission();
 
+  // OK lets ready!
   Wire.beginTransmission(AM2315_I2CADDR);
   Wire.write(AM2315_READREG);
   Wire.write(0x00);  // start at address 0x0
   Wire.write(4);  // request 4 bytes data
   Wire.endTransmission();
-
-  // wait before reading values (per the datasheet)
-  delay(200);
   
+  delay(10); // add delay between request and actual read!
+
   Wire.requestFrom(AM2315_I2CADDR, 8);
   for (uint8_t i=0; i<8; i++) {
     reply[i] = Wire.read();
@@ -59,25 +60,14 @@ boolean Adafruit_AM2315::readData(void) {
   humidity /= 10;
   //Serial.print("H"); Serial.println(humidity);
 
-  // test negative temp (-10.1C)
-  //reply[4] = 0x80;
-  //reply[5] = 0x65;
-  // test negative temp (-100.1C)
-  //reply[4] = 0x83;
-  //reply[5] = 0xE9;
-  // test positive temp (100.1C)
-  //reply[4] = 0x03;
-  //reply[5] = 0xE9;
-
-  temp = reply[4] & 0x7F; // high bit is sign
+  temp = reply[4] & 0x7F;
   temp *= 256;
   temp += reply[5];
   temp /= 10;
+  //Serial.print("T"); Serial.println(temp);
 
   // change sign
   if (reply[4] >> 7) temp = -temp;
-
-  //Serial.print("T"); Serial.println(temp);
 
   return true;
 }
@@ -91,13 +81,6 @@ float Adafruit_AM2315::readTemperature(void) {
 float Adafruit_AM2315::readHumidity(void) {
   if (! readData()) return NAN;
   return humidity;
-}
-
-boolean Adafruit_AM2315::readSensor(AM2315_Sensor_Reading *sr) {
-  if (! readData()) return false;
-  (*sr).temp = temp;
-  (*sr).humidity = humidity;
-  return true;
 }
 
 /*********************************************************************/
