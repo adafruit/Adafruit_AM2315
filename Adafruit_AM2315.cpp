@@ -83,6 +83,7 @@ float Adafruit_AM2315::readHumidity(void) {
   return humidity;
 }
 
+
 /*
  * This method returns both temperature and humidity in a single call and using a single I2C request. 
  *
