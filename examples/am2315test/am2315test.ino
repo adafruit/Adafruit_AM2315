@@ -39,4 +39,4 @@ void loop() {
   Serial.print("Temp: "); Serial.println(am2315.readTemperature());
 
   delay(1000);
-}}
+}
