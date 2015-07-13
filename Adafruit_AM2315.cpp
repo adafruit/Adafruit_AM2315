@@ -15,7 +15,6 @@
  ****************************************************/
 
 #include "Adafruit_AM2315.h"
-#include <util/delay.h>
 
 Adafruit_AM2315::Adafruit_AM2315() {
 }
