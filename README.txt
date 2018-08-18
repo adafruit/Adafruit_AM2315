@@ -20,5 +20,14 @@ Check that the Adafruit_AM2315 folder contains Adafruit_AM2315.cpp and Adafruit_
 Place the Adafruit_AM2315 library folder your arduinosketchfolder/libraries/ folder. 
 You may need to create the libraries subfolder if its your first library. Restart the IDE.
 
+To connect the AM2315 to the Arduino:
+
+- RED wire goes to +5V
+- BLACK wire goes to Ground
+- WHITE wire goes to to i2c clock - on '168/'328 Arduino Uno/Duemilanove/etc that's Analog 5
+- YELLOW wire goes to i2c data - on '168/'328 Arduino Uno/Duemilanove/etc that's Analog 4
+
+Also see http://arduino.cc/en/Reference/Wire
+
 We also have a great tutorial on Arduino library installation at:
 http://learn.adafruit.com/adafruit-all-about-arduino-libraries-install-use
