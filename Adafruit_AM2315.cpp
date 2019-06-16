@@ -27,6 +27,7 @@
   /**************************************************************************/
 
 Adafruit_AM2315::Adafruit_AM2315(TwoWire *theI2C) :   _i2c(theI2C) {
+  lastreading = 0;
 }
 
 /**************************************************************************/
@@ -45,11 +46,24 @@ boolean Adafruit_AM2315::begin(void) {
 /**************************************************************************/
 /*! 
     @brief  Helper to read the temperature & humidity from the device
-    @return True if successful data read
+    @return True if successful data read, note you can only read once every 2 seconds!
 */
 /**************************************************************************/
 boolean Adafruit_AM2315::readData(void) {
   uint8_t reply[10];
+
+  if (lastreading) {
+    if (millis() > lastreading) {
+      if ((millis() - lastreading) < 2000) { // has it been less than 2 seconds since?
+	return false; // bail, they need to wait longer!
+      }
+    } else {
+      // millis() is less than the last reading, so we wrapped around!
+      lastreading = millis();
+      return false; // bail again
+    }
+  }
+  lastreading = millis();  // reset our timer
   
   // Wake up the sensor
   _i2c->beginTransmission(AM2315_I2CADDR);
@@ -94,7 +108,7 @@ boolean Adafruit_AM2315::readData(void) {
 
 /**************************************************************************/
 /*! 
-    @brief  Read and return the temperature
+    @brief  Read and return the temperature, note you can only read once every 2 seconds
     @return Floating point Celsius temperature on success, NAN on failure
 */
 /**************************************************************************/
@@ -105,7 +119,7 @@ float Adafruit_AM2315::readTemperature(void) {
 
 /**************************************************************************/
 /*! 
-    @brief  Read and return the humidity
+    @brief  Read and return the humidity, note you can only read once every 2 seconds
     @return Floating point percentace humidity on success, NAN on failure
 */
 /**************************************************************************/
@@ -124,13 +138,13 @@ float Adafruit_AM2315::readHumidity(void) {
   Calling this method avoids the double I2C request.
   @param t Pointer to float to store temperature data in
   @param h Pointer to float to store humidity data in
-  @return True if successful data read
+  @return True if successful data read, note you can only read once every 2 seconds
  */
-bool Adafruit_AM2315::readTemperatureAndHumidity(float &t, float &h) {
+bool Adafruit_AM2315::readTemperatureAndHumidity(float *t, float *h) {
     if (!readData()) return false;
     
-    t = temp;
-    h = humidity;
+    *t = temp;
+    *h = humidity;
     
     return true;
 }
