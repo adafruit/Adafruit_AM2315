@@ -19,37 +19,55 @@
   #include <util/delay.h>
 #endif
 
-Adafruit_AM2315::Adafruit_AM2315() {
+  /**************************************************************************/
+  /*! 
+      @brief  Instantiates a new AM2320 class
+      @param theI2C Optional pointer to a TwoWire object that should be used for I2C communication. Defaults to &Wire.
+  */
+  /**************************************************************************/
+
+Adafruit_AM2315::Adafruit_AM2315(TwoWire *theI2C) :   _i2c(theI2C) {
 }
 
-
+/**************************************************************************/
+/*! 
+    @brief  Setups the hardware
+    @return True on a successful read, false if first read failed
+*/
+/**************************************************************************/
 boolean Adafruit_AM2315::begin(void) {
-  Wire.begin();
+   _i2c->begin();
   
    // try to read data, as a test
   return readData();
 }
 
+/**************************************************************************/
+/*! 
+    @brief  Helper to read the temperature & humidity from the device
+    @return True if successful data read
+*/
+/**************************************************************************/
 boolean Adafruit_AM2315::readData(void) {
   uint8_t reply[10];
   
   // Wake up the sensor
-  Wire.beginTransmission(AM2315_I2CADDR);
+  _i2c->beginTransmission(AM2315_I2CADDR);
   delay(2);
-  Wire.endTransmission();
+  _i2c->endTransmission();
 
   // OK lets ready!
-  Wire.beginTransmission(AM2315_I2CADDR);
-  Wire.write(AM2315_READREG);
-  Wire.write(0x00);  // start at address 0x0
-  Wire.write(4);  // request 4 bytes data
-  Wire.endTransmission();
+  _i2c->beginTransmission(AM2315_I2CADDR);
+  _i2c->write(AM2315_READREG);
+  _i2c->write(0x00);  // start at address 0x0
+  _i2c->write(4);  // request 4 bytes data
+  _i2c->endTransmission();
   
   delay(10); // add delay between request and actual read!
 
-  Wire.requestFrom(AM2315_I2CADDR, 8);
+  _i2c->requestFrom(AM2315_I2CADDR, 8);
   for (uint8_t i=0; i<8; i++) {
-    reply[i] = Wire.read();
+    reply[i] = _i2c->read();
     //Serial.println(reply[i], HEX);
   }
   
@@ -74,25 +92,39 @@ boolean Adafruit_AM2315::readData(void) {
   return true;
 }
 
-
+/**************************************************************************/
+/*! 
+    @brief  Read and return the temperature
+    @return Floating point Celsius temperature on success, NAN on failure
+*/
+/**************************************************************************/
 float Adafruit_AM2315::readTemperature(void) {
   if (! readData()) return NAN;
   return temp;
 }
 
+/**************************************************************************/
+/*! 
+    @brief  Read and return the humidity
+    @return Floating point percentace humidity on success, NAN on failure
+*/
+/**************************************************************************/
 float Adafruit_AM2315::readHumidity(void) {
   if (! readData()) return NAN;
   return humidity;
 }
 
 
-/*
- * This method returns both temperature and humidity in a single call and using a single I2C request. 
- *
- * If you want to obtain both temperature and humidity when you sample the sensor, be aware that calling 
- * readTemperature() and readHumidity() in rapid succession may swamp the sensor and result in invalid 
- * readingings (the AM2315 manual advisess that continuous samples must be at least 2 seconds apart).
- * Calling this method avoids the double I2C request.
+/**************************************************************************/
+/*! 
+  @brief This method returns both temperature and humidity in a single call and using a single I2C request. 
+  If you want to obtain both temperature and humidity when you sample the sensor, be aware that calling 
+  readTemperature() and readHumidity() in rapid succession may swamp the sensor and result in invalid 
+  readingings (the AM2315 manual advisess that continuous samples must be at least 2 seconds apart).
+  Calling this method avoids the double I2C request.
+  @param t Pointer to float to store temperature data in
+  @param h Pointer to float to store humidity data in
+  @return True if successful data read
  */
 bool Adafruit_AM2315::readTemperatureAndHumidity(float &t, float &h) {
     if (!readData()) return false;
