@@ -4,7 +4,7 @@
 /*************************************************** 
   This is an example for the AM2315 Humidity + Temp sensor
 
-  Designed specifically to work with the Adafruit BMP085 Breakout 
+  Designed specifically to work with the Adafruit AM2315 Sensor 
   ----> https://www.adafruit.com/products/1293
 
   These displays use I2C to communicate, 2 pins are required to  
@@ -19,13 +19,16 @@
 
 // Connect RED of the AM2315 sensor to 5.0V
 // Connect BLACK to Ground
-// Connect WHITE to i2c clock - on '168/'328 Arduino Uno/Duemilanove/etc thats Analog 5
-// Connect YELLOW to i2c data - on '168/'328 Arduino Uno/Duemilanove/etc thats Analog 4
+// Connect WHITE to i2c clock
+// Connect YELLOW to i2c data
 
 Adafruit_AM2315 am2315;
 
 void setup() {
   Serial.begin(9600);
+  while (!Serial) {
+    delay(10);
+  }
   Serial.println("AM2315 Test!");
 
   if (! am2315.begin()) {
@@ -35,8 +38,14 @@ void setup() {
 }
 
 void loop() {
-  Serial.print("Hum: "); Serial.println(am2315.readHumidity());
-  Serial.print("Temp: "); Serial.println(am2315.readTemperature());
+  float temperature, humidity;
 
-  delay(1000);
+  if (! am2315.readTemperatureAndHumidity(&temperature, &humidity)) {
+    Serial.println("Failed to read data from AM2315");
+    return;
+  }
+  Serial.print("Temp *C: "); Serial.println(temperature);
+  Serial.print("Hum %: "); Serial.println(humidity);
+
+  delay(2000);
 }
