@@ -150,3 +150,114 @@ bool Adafruit_AM2315::readTemperatureAndHumidity(float *t, float *h) {
 }
 
 /*********************************************************************/
+
+/**************************************************************************/
+/*! 
+    @brief  Read and return the sensors 16 bit model number
+    @return The sensors model number on success, NAN on failure
+*/
+/**************************************************************************/
+uint16_t Adafruit_AM2315::readModelNumber(void) {
+  uint8_t reply[4];
+
+  // Wake up the sensor
+  _i2c->beginTransmission(AM2315_I2CADDR);
+  delay(2);
+  _i2c->endTransmission();
+
+  // OK lets ready!
+  _i2c->beginTransmission(AM2315_I2CADDR);
+  _i2c->write(AM2315_READREG);
+  _i2c->write(0x08);  // start at address 0x08
+  _i2c->write(2);  // request 2 bytes of data
+  _i2c->endTransmission();
+  
+  delay(10); // add delay between request and actual read!
+
+  _i2c->requestFrom(AM2315_I2CADDR, 4);
+  for (uint8_t i=0; i<4; i++) {
+    reply[i] = _i2c->read();
+    //Serial.println(reply[i], HEX);
+  }
+  
+  if (reply[0] != AM2315_READREG) return NAN;
+  if (reply[1] != 2) return NAN; // bytes req'd
+
+  uint16_t modelnumber = (reply[2] << 8) | reply[3]; // concat model number bytes
+  
+  return modelnumber;
+}
+
+/**************************************************************************/
+/*! 
+    @brief  Read and return the sensors 8 bit version number
+    @return The sensors version number on success, NAN on failure
+*/
+/**************************************************************************/
+uint8_t Adafruit_AM2315::readVersionNumber(void) {
+  uint8_t reply[3];
+
+  // Wake up the sensor
+  _i2c->beginTransmission(AM2315_I2CADDR);
+  delay(2);
+  _i2c->endTransmission();
+
+  // OK lets ready!
+  _i2c->beginTransmission(AM2315_I2CADDR);
+  _i2c->write(AM2315_READREG);
+  _i2c->write(0x0A);  // start at address 0x0A
+  _i2c->write(1);  // request 1 byte of data
+  _i2c->endTransmission();
+  
+  delay(10); // add delay between request and actual read!
+
+  _i2c->requestFrom(AM2315_I2CADDR, 3);
+  for (uint8_t i=0; i<3; i++) {
+    reply[i] = _i2c->read();
+    //Serial.println(reply[i], HEX);
+  }
+  
+  if (reply[0] != AM2315_READREG) return NAN;
+  if (reply[1] != 1) return NAN; // bytes req'd
+
+  uint8_t versionnumber = reply[2];
+  
+  return versionnumber;
+}
+
+/**************************************************************************/
+/*! 
+    @brief  Read and return the sensors 32 bit ID
+    @return The sensors model number on success, NAN on failure
+*/
+/**************************************************************************/
+uint32_t Adafruit_AM2315::readID(void) {
+  uint8_t reply[6];
+
+  // Wake up the sensor
+  _i2c->beginTransmission(AM2315_I2CADDR);
+  delay(2);
+  _i2c->endTransmission();
+
+  // OK lets ready!
+  _i2c->beginTransmission(AM2315_I2CADDR);
+  _i2c->write(AM2315_READREG);
+  _i2c->write(0x0B);  // start at address 0x0B
+  _i2c->write(4);  // request 4 bytes of data
+  _i2c->endTransmission();
+  
+  delay(10); // add delay between request and actual read!
+
+  _i2c->requestFrom(AM2315_I2CADDR, 6);
+  for (uint8_t i=0; i<6; i++) {
+    reply[i] = _i2c->read();
+    //Serial.println(reply[i], HEX);
+  }
+  
+  if (reply[0] != AM2315_READREG) return NAN;
+  if (reply[1] != 4) return NAN; // bytes req'd
+
+  uint16_t id = (reply[2] << 24) | (reply[3] << 16) | (reply[4] << 8) | reply[5]; // concat id bytes
+  
+  return id;
+}

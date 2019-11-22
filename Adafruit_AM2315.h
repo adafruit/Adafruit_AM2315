@@ -32,6 +32,9 @@ class Adafruit_AM2315 {
   float readTemperature(void);
   float readHumidity(void);
   bool readTemperatureAndHumidity(float*, float*);
+  uint16_t readModelNumber();
+  uint8_t readVersionNumber();
+  uint32_t readID();
   
  private:
   TwoWire *_i2c;
