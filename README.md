@@ -1,3 +1,6 @@
+# Adafruit AM2315 Humidity + Temp Sensor
+[![Build Status](https://github.com/adafruit/Adafruit_AM2315/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/adafruit/Adafruit_AM2315/actions)[![Documentation](https://github.com/adafruit/ci-arduino/blob/master/assets/doxygen_badge.svg)](http://adafruit.github.io/Adafruit_AM2315/html/index.html)
+
 This is a library for the AM2315 Humidity + Temp sensor
 
 Designed specifically to work with the AM2315 in the Adafruit shop 
