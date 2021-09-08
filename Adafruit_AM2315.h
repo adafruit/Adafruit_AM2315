@@ -19,7 +19,8 @@
 #else
 #include "WProgram.h"
 #endif
-#include "Wire.h"
+
+#include <Adafruit_I2CDevice.h>
 
 #define AM2315_I2CADDR 0x5C
 #define AM2315_READREG 0x03
@@ -34,7 +35,7 @@ public:
   bool readTemperatureAndHumidity(float *, float *);
 
 private:
-  TwoWire *_i2c;
+  Adafruit_I2CDevice *i2c_dev = NULL; ///< Pointer to I2C bus interface
   boolean readData(void);
   float humidity, temp;
   uint32_t lastreading;

@@ -27,7 +27,8 @@
 */
 /**************************************************************************/
 
-Adafruit_AM2315::Adafruit_AM2315(TwoWire *theI2C) : _i2c(theI2C) {
+Adafruit_AM2315::Adafruit_AM2315(TwoWire *theI2C) {
+  i2c_dev = new Adafruit_I2CDevice(AM2315_I2CADDR, theI2C);
   lastreading = 0;
 }
 
@@ -38,7 +39,8 @@ Adafruit_AM2315::Adafruit_AM2315(TwoWire *theI2C) : _i2c(theI2C) {
 */
 /**************************************************************************/
 boolean Adafruit_AM2315::begin(void) {
-  _i2c->begin();
+  // a conditional check won't work here since device NACKs address discovery
+  i2c_dev->begin();
 
   // try to read data, as a test
   return readData();
@@ -52,7 +54,7 @@ boolean Adafruit_AM2315::begin(void) {
 */
 /**************************************************************************/
 boolean Adafruit_AM2315::readData(void) {
-  uint8_t reply[10];
+  uint8_t reply[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   if (lastreading) {
     if (millis() > lastreading) {
@@ -68,25 +70,22 @@ boolean Adafruit_AM2315::readData(void) {
   }
   lastreading = millis(); // reset our timer
 
-  // Wake up the sensor
-  _i2c->beginTransmission(AM2315_I2CADDR);
-  delay(2);
-  _i2c->endTransmission();
+  //
+  // Using steps from datasheet, s.7.2.4
+  //
 
-  // OK lets ready!
-  _i2c->beginTransmission(AM2315_I2CADDR);
-  _i2c->write(AM2315_READREG);
-  _i2c->write(0x00); // start at address 0x0
-  _i2c->write(4);    // request 4 bytes data
-  _i2c->endTransmission();
+  // Step one: Wake-up sensor
+  // 10 * 8 clock cycles @ 100kHz ~= 800us
+  i2c_dev->write(reply, 10);
 
-  delay(10); // add delay between request and actual read!
+  // Step two: send read command
+  reply[0] = AM2315_READREG; // function code
+  reply[1] = 0x00;           // start address
+  reply[2] = 0x04;           // number of bytes
+  i2c_dev->write(reply, 3);
 
-  _i2c->requestFrom(AM2315_I2CADDR, 8);
-  for (uint8_t i = 0; i < 8; i++) {
-    reply[i] = _i2c->read();
-    // Serial.println(reply[i], HEX);
-  }
+  // Step three: read data back
+  i2c_dev->read(reply, 8);
 
   if (reply[0] != AM2315_READREG)
     return false;
