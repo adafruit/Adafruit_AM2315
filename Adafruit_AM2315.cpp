@@ -54,7 +54,7 @@ boolean Adafruit_AM2315::begin(void) {
 */
 /**************************************************************************/
 boolean Adafruit_AM2315::readData(void) {
-  uint8_t reply[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  uint8_t reply[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   if (lastreading) {
     if (millis() > lastreading) {
@@ -75,8 +75,10 @@ boolean Adafruit_AM2315::readData(void) {
   //
 
   // Step one: Wake-up sensor
-  // 10 * 8 clock cycles @ 100kHz ~= 800us
-  i2c_dev->write(reply, 10);
+  // Datasheet is confusing about "wake up". This is adapted from:
+  // https://www.switchdoc.com/2016/04/am2315-highly-reliable-esp8266-arduino-driver/
+  i2c_dev->write(reply, 1);
+  delay(50);
 
   // Step two: send read command
   reply[0] = AM2315_READREG; // function code
